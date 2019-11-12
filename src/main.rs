@@ -33,6 +33,29 @@ fn panic(info: &PanicInfo) -> ! {
     loop {}
 }
 
+/*
+    在这里使用qemu提供的 isa-debug-exit设备。
+    当一个 value被写入iobase指定的端口时，它将导致QEMU以退出状态（exit status）(value << 1) | 1退出。
+    也就是说，当我们向端口写入0时，QEMU将以退出状态(0 << 1) | 1 = 1退出；而当我们向端口写入1时，它将以退出状态(1 << 1) | 1 = 3退出。
+
+    这里还有一个问题，就是因为qemu会将退出状态改变，这使得不能使实际退出码为0
+*/
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
+pub enum QemuExitCode {
+    Success = 0x10, // 这里不能使用0，因为0会被转换为1，而1是qemu运行失败时的默认退出代码
+    Failed = 0x11,
+}
+
+pub fn exit_qemu(exit_code: QemuExitCode) {
+    use x86_64::instructions::port::Port;
+
+    unsafe {
+        let mut port = Port::new(0xf4);
+        port.write(exit_code as u32);
+    }
+}
+
 
 #[cfg(test)]
 fn test_runner(tests: &[&dyn Fn()]) {
@@ -40,4 +63,13 @@ fn test_runner(tests: &[&dyn Fn()]) {
     for test in tests {
         test();
     }
+
+    exit_qemu(QemuExitCode::Success);
+}
+
+#[test_case]
+fn trivial_assertion() {
+    print!("trivial assertion... ");
+    assert_eq!(1, 1);
+    println!("[ok]");
 }
