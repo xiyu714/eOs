@@ -30,6 +30,9 @@ test-args = [
     "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio",
     "-display", "none"
 ]
+# bootimage工具默认为每个可执行测试设置了一个长度为5分钟的超时时间限——如果测试未在此时间限内完成，
+# 则将其标记为失败，并向控制台输出"Timed Out"即超时错误。这个功能能确保那些卡在无限循环里的测试不会一直阻塞cargo xtest
+#test-timeout = 300          # (in seconds)
 test-success-exit-code = 33         # (0x10 << 1) | 1
 # bootimage就会将成功退出码映射到退出码0；这样一来，cargo xtest就能正确地识别出测试成功的情况，而不会将其视为测试失败。
 # 但我不知道，bootimage是怎么做到的

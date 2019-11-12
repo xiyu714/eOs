@@ -78,10 +78,3 @@ fn test_runner(tests: &[&dyn Fn()]) {
 
     exit_qemu(QemuExitCode::Success);
 }
-
-#[test_case]
-fn trivial_assertion() {
-    serial_print!("trivial assertion... ");
-    assert_eq!(1, 1);
-    serial_println!("[ok]");
-}
