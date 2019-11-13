@@ -21,7 +21,12 @@ pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
     eOs::init(); // new
-
+    /*
+        在这里会发生一个page fault异常，但是IDT中没有page fault 中断处理程序
+        所以，引起一个 segment-not-present 异常，然而 segment-not-present 中断处理程序也没有。
+        于是，又引起一个segment-not-present 异常。
+        而根据定义，segment-not-present 异常 + segment-not-present 异常 会引起double fault
+    */
     unsafe {
         *(0xdeadbeef as *mut u64) = 42;
     };
