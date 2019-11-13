@@ -5,11 +5,13 @@
 #![no_std]
 #![allow(non_snake_case)]
 #![feature(non_ascii_idents)]
+#![feature(abi_x86_interrupt)]
 
 use core::panic::PanicInfo;
 
 pub mod serial;
 pub mod vga_buffer;
+pub mod interrupts;
 
 pub fn test_runner(tests: &[&dyn Fn()]) {
     serial_println!("Running {} tests", tests.len());
@@ -38,6 +40,11 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     test_panic_handler(info)
+}
+
+
+pub fn init() {
+    interrupts::init_idt();
 }
 
 /*

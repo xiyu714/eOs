@@ -20,8 +20,16 @@ pub extern "C" fn _start() -> ! {
     // 默认命名为`_start`
     println!("Hello World{}", "!");
 
+    eOs::init(); // new
+
+    // invoke a breakpoint exception
+    x86_64::instructions::interrupts::int3(); // new
+
     #[cfg(test)]
         test_main();
+
+
+    println!("It did not crash!");
 
     loop {}
 }
