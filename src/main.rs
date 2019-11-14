@@ -29,7 +29,10 @@ pub extern "C" fn _start() -> ! {
 
     println!("It did not crash!");
 
-    loop {}
+    loop {
+        use eOs::print;
+        print!("-");
+    }
 }
 
 /// 这个函数将在panic时被调用
