@@ -26,7 +26,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failed);
-    loop {}
+    hlt_loop();
 }
 
 /// Entry point for `cargo xtest`
@@ -35,7 +35,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 pub extern "C" fn _start() -> ! {
     init();      // new
     test_main();
-    loop {}
+    hlt_loop();
 }
 
 #[cfg(test)]
@@ -72,5 +72,16 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
     unsafe {
         let mut port = Port::new(0xf4);
         port.write(exit_code as u32);
+    }
+}
+
+/**
+    创建一个更加有效能的循环。
+    hlt指令使CPU暂时休眠，直到外部中断的到来
+    使用了这个方法以后CPU占用率大幅度降低。在Windows上，原来qemu运行CPU占用30%，改用hlt后，只要3%左右。
+*/
+pub fn hlt_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
     }
 }

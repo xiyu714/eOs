@@ -10,7 +10,7 @@
 */
 #![reexport_test_harness_main = "test_main"]    //将自动生成的测试主函数命名为"test_main"
 
-use eOs::println;
+use eOs::{println, hlt_loop};
 
 use core::panic::PanicInfo;
 
@@ -29,10 +29,7 @@ pub extern "C" fn _start() -> ! {
 
     println!("It did not crash!");
 
-    loop {
-        use eOs::print;
-        print!("-");
-    }
+    hlt_loop();
 }
 
 /// 这个函数将在panic时被调用
@@ -40,7 +37,7 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    hlt_loop();
 }
 
 // our panic handler in test mode
