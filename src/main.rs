@@ -22,6 +22,7 @@ entry_point!(kernel_main);
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // 因为编译器会寻找一个名为`_start`的函数，所以这个函数就是入口点
     use eOs::memory;
+    use eOs::memory::BootInfoFrameAllocator;
     use x86_64::{structures::paging::Page, VirtAddr};
 
     println!("Hello World{}", "!");
@@ -30,7 +31,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
-    let mut frame_allocator = memory::EmptyFrameAllocator;
+    let mut frame_allocator = unsafe {
+        BootInfoFrameAllocator::init(&boot_info.memory_map)
+    };
 
     // map an unused page
     let page = Page::containing_address(VirtAddr::new(0));
